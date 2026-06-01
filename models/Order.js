@@ -71,6 +71,14 @@ const OrderSchema = new mongoose.Schema({
     enum: ['processing', 'shipped', 'delivered'],
     default: 'processing'
   },
+  orderType: {
+    type: String,
+    enum: ['retail', 'wholesale'],
+    default: 'retail'
+  },
+  invoiceNumber: {
+    type: String
+  },
   createdAt: {
     type: Date,
     default: Date.now

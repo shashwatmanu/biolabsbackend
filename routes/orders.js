@@ -157,7 +157,8 @@ router.post('/', async (req, res) => {
       paymentMethod: paymentMethod || 'Razorpay',
       paymentStatus: 'paid', // Mark paid immediately for mock checkout flow
       razorpayOrderId: `rpay_order_${Date.now()}`,
-      razorpayPaymentId: `rpay_pay_${Date.now()}`
+      razorpayPaymentId: `rpay_pay_${Date.now()}`,
+      invoiceNumber: `INV-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`
     };
 
     if (userId) {
@@ -200,6 +201,153 @@ router.get('/myorders', async (req, res) => {
   } catch (error) {
     console.error('Fetch orders error:', error);
     res.status(500).json({ error: 'Server error retrieving order history' });
+  }
+});
+
+// ==========================================
+// ADMINISTRATIVE ADMIN DASHBOARD ENDPOINTS
+// ==========================================
+
+// @desc    Get dashboard stats (aggregated numbers)
+// @route   GET /api/orders/admin/stats
+// @access  Private/Admin
+router.get('/admin/stats', async (req, res) => {
+  try {
+    // 1. Calculate Total Revenue
+    const paidOrders = await Order.find({ paymentStatus: 'paid' });
+    const totalRevenue = paidOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+
+    // 2. Count Total Orders & Subscriber lists
+    const totalOrdersCount = await Order.countDocuments();
+    const Subscriber = require('../models/Subscriber');
+    const totalSubscribers = await Subscriber.countDocuments();
+
+    // 3. Segment Payment Status counts
+    const paidCount = await Order.countDocuments({ paymentStatus: 'paid' });
+    const pendingPaymentCount = await Order.countDocuments({ paymentStatus: 'pending' });
+    const failedPaymentCount = await Order.countDocuments({ paymentStatus: 'failed' });
+
+    // 4. Segment Shipping Status counts
+    const processingCount = await Order.countDocuments({ shippingStatus: 'processing' });
+    const shippedCount = await Order.countDocuments({ shippingStatus: 'shipped' });
+    const deliveredCount = await Order.countDocuments({ shippingStatus: 'delivered' });
+
+    // 5. Segment Retail vs Wholesale
+    const retailCount = await Order.countDocuments({ orderType: 'retail' });
+    const wholesaleCount = await Order.countDocuments({ orderType: 'wholesale' });
+
+    // 6. Gather low inventory alert counts
+    const Product = require('../models/Product');
+    const lowStockProducts = await Product.find({ stock: { $lt: 10 } });
+
+    res.json({
+      totalRevenue,
+      totalOrdersCount,
+      totalSubscribers,
+      payments: {
+        paid: paidCount,
+        pending: pendingPaymentCount,
+        failed: failedPaymentCount
+      },
+      shipping: {
+        processing: processingCount,
+        shipped: shippedCount,
+        delivered: deliveredCount
+      },
+      types: {
+        retail: retailCount,
+        wholesale: wholesaleCount
+      },
+      lowStockAlertCount: lowStockProducts.length
+    });
+  } catch (error) {
+    console.error('Admin stats retrieval error:', error);
+    res.status(500).json({ error: 'Failed to retrieve administrative statistics' });
+  }
+});
+
+// @desc    Get all orders (with advanced filtering)
+// @route   GET /api/orders/admin/all
+// @access  Private/Admin
+router.get('/admin/all', async (req, res) => {
+  try {
+    const { orderType, paymentStatus, shippingStatus, search } = req.query;
+    let query = {};
+
+    if (orderType) query.orderType = orderType;
+    if (paymentStatus) query.paymentStatus = paymentStatus;
+    if (shippingStatus) query.shippingStatus = shippingStatus;
+
+    if (search) {
+      // Fuzzy search guest name or email
+      query.$or = [
+        { 'guestDetails.name': { $regex: search, $options: 'i' } },
+        { 'guestDetails.email': { $regex: search, $options: 'i' } },
+        { invoiceNumber: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const allOrders = await Order.find(query).sort({ createdAt: -1 });
+    res.json(allOrders);
+  } catch (error) {
+    console.error('Admin fetch all orders error:', error);
+    res.status(500).json({ error: 'Failed to retrieve administrative order lists' });
+  }
+});
+
+// @desc    Update shipping status of an order
+// @route   PUT /api/orders/admin/:id/status
+// @access  Private/Admin
+router.put('/admin/:id/status', async (req, res) => {
+  try {
+    const { shippingStatus } = req.body;
+    
+    if (!['processing', 'shipped', 'delivered'].includes(shippingStatus)) {
+      return res.status(400).json({ error: 'Invalid shipping status type' });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { shippingStatus },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.json({ success: true, message: 'Shipping status updated successfully!', order });
+  } catch (error) {
+    console.error('Update shipping status error:', error);
+    res.status(500).json({ error: 'Failed to update order shipping status' });
+  }
+});
+
+// @desc    Toggle order classification type (Retail vs Wholesale)
+// @route   PUT /api/orders/admin/:id/type
+// @access  Private/Admin
+router.put('/admin/:id/type', async (req, res) => {
+  try {
+    const { orderType } = req.body;
+
+    if (!['retail', 'wholesale'].includes(orderType)) {
+      return res.status(400).json({ error: 'Invalid order category classification' });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { orderType },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.json({ success: true, message: 'Order categorization updated!', order });
+  } catch (error) {
+    console.error('Toggle order type error:', error);
+    res.status(500).json({ error: 'Failed to update order category classification' });
   }
 });
 
