@@ -302,7 +302,7 @@ router.put('/admin/:id/status', async (req, res) => {
   try {
     const { shippingStatus } = req.body;
     
-    if (!['processing', 'shipped', 'delivered'].includes(shippingStatus)) {
+    if (!['processing', 'shipped', 'delivered', 'cancelled'].includes(shippingStatus)) {
       return res.status(400).json({ error: 'Invalid shipping status type' });
     }
 
@@ -348,6 +348,39 @@ router.put('/admin/:id/type', async (req, res) => {
   } catch (error) {
     console.error('Toggle order type error:', error);
     res.status(500).json({ error: 'Failed to update order category classification' });
+  }
+});
+
+// @desc    Mock Push order to Shiprocket (generates tracking AWB number)
+// @route   PUT /api/orders/admin/:id/shiprocket
+// @access  Private/Admin
+router.put('/admin/:id/shiprocket', async (req, res) => {
+  try {
+    const trackingNumber = `SR-AWB-${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+    const shipmentId = `SR-SH-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      {
+        shippingStatus: 'shipped',
+        trackingNumber,
+        shipmentId
+      },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Order successfully pushed and approved in Shiprocket!',
+      order
+    });
+  } catch (error) {
+    console.error('Shiprocket push error:', error);
+    res.status(500).json({ error: 'Failed to register order with Shiprocket' });
   }
 });
 

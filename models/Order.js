@@ -68,7 +68,7 @@ const OrderSchema = new mongoose.Schema({
   },
   shippingStatus: {
     type: String,
-    enum: ['processing', 'shipped', 'delivered'],
+    enum: ['processing', 'shipped', 'delivered', 'cancelled'],
     default: 'processing'
   },
   orderType: {
@@ -77,6 +77,12 @@ const OrderSchema = new mongoose.Schema({
     default: 'retail'
   },
   invoiceNumber: {
+    type: String
+  },
+  trackingNumber: {
+    type: String
+  },
+  shipmentId: {
     type: String
   },
   createdAt: {
