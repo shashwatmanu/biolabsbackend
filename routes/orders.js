@@ -74,7 +74,7 @@ const sendOrderConfirmationEmail = async (email, order) => {
 // @access  Public (handles guest and registered checkouts)
 router.post('/', async (req, res) => {
   try {
-    const { items, shippingAddress, guestDetails, paymentMethod } = req.body;
+    const { items, shippingAddress, guestDetails, paymentMethod, couponCode } = req.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({ error: 'Cart is empty. Cannot place order.' });
@@ -127,17 +127,27 @@ router.post('/', async (req, res) => {
         });
       }
 
-      subtotal += product.price * item.quantity;
+      let itemPrice = product.price;
+      if (item.isSubscription) {
+        // apply 15% discount for auto-pay subscription (round to integer)
+        itemPrice = Math.round(product.price * 0.85);
+      }
+
+      subtotal += itemPrice * item.quantity;
       validatedItems.push({
         productId: product.id,
-        title: product.name,
-        price: product.price,
+        title: item.isSubscription ? `${product.name} (Auto-Pay Subscription)` : product.name,
+        price: itemPrice,
         quantity: item.quantity
       });
     }
 
     const shippingCharges = 0; // Free shipping
-    const totalAmount = subtotal + shippingCharges;
+    let discountAmount = 0;
+    if (couponCode === 'FOUNDER10') {
+      discountAmount = Math.round(subtotal * 0.10);
+    }
+    const totalAmount = subtotal + shippingCharges - discountAmount;
 
     // Deduct stock levels for items purchased
     for (const item of items) {
