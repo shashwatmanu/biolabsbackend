@@ -72,6 +72,16 @@ const getTransporter = () => {
  * @param {boolean} testMode - If true, compresses delays to 5 seconds per step for testing.
  */
 const triggerFlow = async (flowName, email, firstName = 'Customer', metadata = {}, testMode = false) => {
+  // Capitalize name helper
+  const capitalize = (str) => {
+    if (!str) return 'Customer';
+    const clean = str.trim();
+    if (!clean) return 'Customer';
+    return clean.charAt(0).toUpperCase() + clean.slice(1);
+  };
+  
+  firstName = capitalize(firstName);
+
   try {
     const flowSteps = templates[flowName];
     if (!flowSteps) throw new Error(`Invalid flow: ${flowName}`);
@@ -184,8 +194,17 @@ const runEmailSenderJob = async () => {
           throw new Error(`Template not found for flow: ${emailItem.flow}, step: ${emailItem.step}`);
         }
 
+        // Capitalize name dynamically for template render
+        const capitalize = (str) => {
+          if (!str) return 'Customer';
+          const clean = str.trim();
+          if (!clean) return 'Customer';
+          return clean.charAt(0).toUpperCase() + clean.slice(1);
+        };
+        const capitalizedFirstName = capitalize(emailItem.firstName);
+
         // Generate actual HTML content
-        const compiled = flowSteps[emailItem.step](emailItem.firstName, emailItem.metadata);
+        const compiled = flowSteps[emailItem.step](capitalizedFirstName, emailItem.metadata);
 
         if (isLive) {
           await transporter.sendMail({

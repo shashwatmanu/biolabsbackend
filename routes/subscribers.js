@@ -80,4 +80,41 @@ router.post('/', async (req, res) => {
   }
 });
 
+// @desc    Unsubscribe an email from newsletter and cancel all pending retention emails
+// @route   POST /api/subscribe/unsubscribe
+// @access  Public
+router.post('/unsubscribe', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email address is required' });
+    }
+
+    const emailStr = email.toLowerCase().trim();
+
+    // Update subscriber status if exists
+    await Subscriber.findOneAndUpdate(
+      { email: emailStr },
+      { status: 'unsubscribed' }
+    );
+
+    // Cancel all pending retention emails in queue
+    const EmailQueue = require('../models/EmailQueue');
+    const result = await EmailQueue.updateMany(
+      { email: emailStr, status: 'pending' },
+      { status: 'cancelled', error: 'User unsubscribed from retention marketing list' }
+    );
+
+    res.json({
+      success: true,
+      message: 'You have been successfully unsubscribed.',
+      cancelledEmailsCount: result.modifiedCount
+    });
+  } catch (error) {
+    console.error('Newsletter unsubscription error:', error);
+    res.status(500).json({ error: 'Server error processing unsubscribe request' });
+  }
+});
+
 module.exports = router;
