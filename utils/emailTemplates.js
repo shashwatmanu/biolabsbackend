@@ -44,11 +44,20 @@ const wrapEmailTemplate = (title, bodyContentHtml, ctaText = '', ctaUrl = '') =>
               <tr>
                 <td style="padding: 0;">
                   <!-- Header with Logo -->
-                  <div style="padding: 35px 40px 10px 40px; text-align: left;">
-                    <img src="https://raw.githubusercontent.com/shashwatmanu/biomen/main/public/logo/logo_white_full.png" alt="BIOMEN LABS" style="height: 35px; max-height: 35px; width: auto; display: block; outline: none; border: none; text-decoration: none;" />
+                  <div style="padding: 35px 40px 15px 40px; text-align: left;">
+                    <table border="0" cellpadding="0" cellspacing="0" style="margin: 0; padding: 0;">
+                      <tr>
+                        <td valign="middle" style="padding-right: 10px;">
+                          <img src="https://raw.githubusercontent.com/shashwatmanu/biomen/main/public/logo/logo_white_symbol.png" alt="BIOMEN LABS" style="height: 32px; width: 32px; display: block; outline: none; border: none; text-decoration: none;" />
+                        </td>
+                        <td valign="middle" style="font-family: 'Outfit', 'Helvetica Neue', Arial, sans-serif; font-size: 22px; font-weight: 900; letter-spacing: -0.5px; color: #F4F6F2; text-transform: uppercase; line-height: 1;">
+                          BIOMEN <span style="color: #16C784;">LABS</span>
+                        </td>
+                      </tr>
+                    </table>
                   </div>
                   <!-- Content Body -->
-                  <div style="padding: 20px 40px 30px 40px; font-size: 15px; line-height: 1.65; color: #E2E8F0;">
+                  <div style="padding: 10px 40px 30px 40px; font-size: 15px; line-height: 1.65; color: #E2E8F0;">
                     ${bodyContentHtml}
                     ${ctaBtn}
                     <div style="margin-top: 35px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 20px; color: #A8B3AA;">
