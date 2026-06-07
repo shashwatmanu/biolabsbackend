@@ -504,7 +504,7 @@ const templates = {
       `;
       return {
         subject: 'A better way to stay consistent',
-        html: wrapEmailTemplate('90-Day Bundle Plan', body, 'View 90-Day Bundle', bundle_link || '/product/tcore-3-bottles')
+        html: wrapEmailTemplate('90-Day Bundle Plan', body, 'View 90-Day Bundle', bundle_link || '/products/t-core')
       };
     },
     4: (firstName, { feedback_email }) => {
