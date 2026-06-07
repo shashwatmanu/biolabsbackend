@@ -208,7 +208,7 @@ const runEmailSenderJob = async () => {
 
         if (isLive) {
           await transporter.sendMail({
-            from: `"Biomen Labs Support" <${process.env.EMAIL_USER}>`,
+            from: `"Biomen Labs" <${process.env.EMAIL_USER}>`,
             to: emailItem.email,
             subject: compiled.subject,
             html: compiled.html

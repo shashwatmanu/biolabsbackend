@@ -124,23 +124,23 @@ const wrapEmailTemplate = (title, bodyContentHtml, ctaText = '', ctaUrl = '') =>
     </head>
     <body>
       <div style="background-color: #030705; padding: 20px 0;">
-        <div class="container">
-          <div class="header">
-            <div class="logo">BIOMEN LABS</div>
-            <div class="logo-sub">T-CORE VITALITY</div>
+        <div class="container" style="max-width: 600px; margin: 0 auto; background-color: #030705; border: 1px solid #1a251e; border-radius: 12px; overflow: hidden; color: #F4F6F2; font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;">
+          <div class="header" style="padding: 35px 40px 10px 40px; text-align: left;">
+            <div class="logo" style="color: #16C784; font-family: 'Outfit', 'Helvetica Neue', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">BIOMEN LABS</div>
+            <div class="logo-sub" style="color: #BFA46A; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; margin-top: 2px; font-family: 'Outfit', 'Helvetica Neue', sans-serif;">T-CORE VITALITY</div>
           </div>
-          <div class="content">
+          <div class="content" style="padding: 20px 40px 30px 40px; font-size: 15px; line-height: 1.65; color: #E2E8F0;">
             ${bodyContentHtml}
             ${ctaBtn}
-            <div class="signature">
+            <div class="signature" style="margin-top: 35px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 20px; color: #A8B3AA;">
               Nikhil & Ayushman<br/>
-              <span class="founder-names">BIOMEN LABS</span>
+              <span class="founder-names" style="color: #F4F6F2; font-weight: bold; font-family: 'Outfit', 'Helvetica Neue', sans-serif;">BIOMEN LABS</span>
             </div>
           </div>
-          <div class="footer">
+          <div class="footer" style="background-color: #010402; padding: 30px 40px; text-align: center; font-size: 11px; color: #64748B; border-top: 1px solid #1a251e; line-height: 1.5;">
             🔒 Safe & Secure. This email was sent to you because you opted in at our website.<br/>
             Biomen Labs Premium Vitality, India. <br/>
-            <a href="${unsubscribeLink}">Unsubscribe</a> | <a href="${managePreferencesLink}">Manage Preferences</a>
+            <a href="${unsubscribeLink}" style="color: #16C784; text-decoration: none;">Unsubscribe</a> | <a href="${managePreferencesLink}" style="color: #16C784; text-decoration: none;">Manage Preferences</a>
           </div>
         </div>
       </div>
@@ -175,12 +175,12 @@ const templates = {
         <p>Hey ${firstName},</p>
         <p>A serious supplement should be easy to understand.</p>
         <p>Here is the daily serving of T-CORE:</p>
-        <ul class="bullet-list">
-          <li><strong class="gold-text">Shilajit Extract</strong> - 500 mg, chosen for vitality, stamina and energy support.</li>
-          <li><strong class="gold-text">Fenugreek Extract</strong> - 490 mg, chosen for male wellness, strength and vitality support.</li>
-          <li><strong class="gold-text">Tongkat Ali Extract</strong> - 300 mg, chosen for masculine vitality and performance-support positioning.</li>
-          <li><strong class="gold-text">Ashwagandha Extract</strong> - 300 mg, chosen for stress resilience, recovery and adaptogenic support.</li>
-          <li><strong class="gold-text">Black Pepper Extract / Piperine</strong> - 10 mg, chosen to support absorption and formula efficiency.</li>
+        <ul style="margin: 0 0 25px 0; padding-left: 20px;">
+          <li><strong style="color: #BFA46A;">Shilajit Extract</strong> - 500 mg, chosen for vitality, stamina and energy support.</li>
+          <li><strong style="color: #BFA46A;">Fenugreek Extract</strong> - 490 mg, chosen for male wellness, strength and vitality support.</li>
+          <li><strong style="color: #BFA46A;">Tongkat Ali Extract</strong> - 300 mg, chosen for masculine vitality and performance-support positioning.</li>
+          <li><strong style="color: #BFA46A;">Ashwagandha Extract</strong> - 300 mg, chosen for stress resilience, recovery and adaptogenic support.</li>
+          <li><strong style="color: #BFA46A;">Black Pepper Extract / Piperine</strong> - 10 mg, chosen to support absorption and formula efficiency.</li>
         </ul>
         <p>That is 1,600 mg of active herbal ingredients per daily serving. Two capsules. Once daily after a meal.</p>
         <p>We built T-CORE this way because the modern Indian man is dealing with stress, inconsistent routines, poor recovery and energy dips. T-CORE is not a shortcut. It is a daily support system for men who are building better foundations.</p>
@@ -197,14 +197,14 @@ const templates = {
         <p>Here is something we want to say before you buy T-CORE.</p>
         <p>Do not judge a daily herbal formula like a pre-workout. T-CORE is not designed to hit you in 20 minutes. It is built to become part of your routine.</p>
         <p>The men who get the most out of products like this usually do three things well:</p>
-        <ol class="bullet-list" style="list-style-type: decimal;">
+        <ol style="margin: 0 0 25px 0; padding-left: 20px;" style="list-style-type: decimal;">
           <li>They take it consistently.</li>
           <li>They take it with food.</li>
           <li>They give their body enough time to respond.</li>
         </ol>
         <p>That is why every bottle is a 30-day supply. The first bottle gives you a real read. The second and third month are where consistency becomes a lifestyle.</p>
-        <div class="highlight-box">
-          <div class="highlight-title">The Foundation Protocol</div>
+        <div style="background-color: #061009; border-left: 3px solid #16C784; padding: 16px 20px; margin: 25px 0; border-radius: 0 8px 8px 0; color: #E2E8F0;">
+          <div style="font-family: 'Outfit', 'Helvetica Neue', sans-serif; color: #BFA46A; font-weight: 600; text-transform: uppercase; font-size: 13px; margin-bottom: 8px; letter-spacing: 1px;">The Foundation Protocol</div>
           T-CORE supports vitality, energy, stamina, strength and male wellness - but your basics still matter: food, training, sleep, hydration and discipline. That is the honest way to use it.
         </div>
       `;
@@ -218,7 +218,7 @@ const templates = {
         <p>Hey ${firstName},</p>
         <p>This is the last email in this welcome series.</p>
         <p>Here is the simple case for T-CORE:</p>
-        <ul class="bullet-list">
+        <ul style="margin: 0 0 25px 0; padding-left: 20px;">
           <li>A full 30-day supply.</li>
           <li>Five selected herbal extracts.</li>
           <li>1,600 mg active ingredients per daily serving.</li>
@@ -245,8 +245,8 @@ const templates = {
         <p>Hey ${firstName},</p>
         <p>You were looking at T-CORE earlier, so here is the short version.</p>
         <p>T-CORE is a daily male vitality formula for men who want to support energy, stamina, recovery, strength and overall male wellness - without loud, overhyped supplement branding.</p>
-        <div class="highlight-box">
-          <div class="highlight-title">Daily serving details</div>
+        <div style="background-color: #061009; border-left: 3px solid #16C784; padding: 16px 20px; margin: 25px 0; border-radius: 0 8px 8px 0; color: #E2E8F0;">
+          <div style="font-family: 'Outfit', 'Helvetica Neue', sans-serif; color: #BFA46A; font-weight: 600; text-transform: uppercase; font-size: 13px; margin-bottom: 8px; letter-spacing: 1px;">Daily serving details</div>
           Shilajit 500 mg + Fenugreek 490 mg + Tongkat Ali 300 mg + Ashwagandha 300 mg + Black Pepper Extract 10 mg.<br/>
           <strong>60 vegetarian capsules. 30-day supply. 2 capsules daily after meals.</strong>
         </div>
@@ -273,7 +273,7 @@ const templates = {
       const body = `
         <p>Hey ${firstName},</p>
         <p>Before you decide whether T-CORE is for you, read this kind of feedback we are looking for from early customers:</p>
-        <ul class="bullet-list">
+        <ul style="margin: 0 0 25px 0; padding-left: 20px;">
           <li>Did they use it consistently for 30 days?</li>
           <li>Did they follow the dosage properly?</li>
           <li>Did they notice support in energy, stamina, recovery, training consistency or general vitality?</li>
@@ -297,7 +297,7 @@ const templates = {
       const body = `
         <p>Hey ${firstName},</p>
         <p>You added T-CORE to your cart but did not complete the order.</p>
-        <div class="highlight-box" style="text-align: center;">
+        <div style="background-color: #061009; border-left: 3px solid #16C784; padding: 16px 20px; margin: 25px 0; border-radius: 0 8px 8px 0; color: #E2E8F0;" style="text-align: center;">
           <strong>T-CORE - 60 vegetarian capsules - 30-day supply - INR 1,499</strong>
         </div>
         <p>Your cart is saved. If checkout did not work properly or COD/prepaid options were confusing, reply to this email and we will help you.</p>
@@ -330,7 +330,7 @@ const templates = {
         <p>Hey ${firstName},</p>
         <p>Sometimes the reason someone does not complete checkout is not the product. It is the process.</p>
         <p>Quick answers:</p>
-        <ul class="bullet-list">
+        <ul style="margin: 0 0 25px 0; padding-left: 20px;">
           <li><strong>COD / Prepaid:</strong> Choose the option shown at checkout.</li>
           <li><strong>Delivery:</strong> Tracking details are shared immediately after dispatch.</li>
           <li><strong>Dosage:</strong> 2 capsules daily after a meal.</li>
@@ -348,7 +348,7 @@ const templates = {
         <p>Hey ${firstName},</p>
         <p>Final note about your T-CORE cart.</p>
         <p>Complete your order today and we will prioritise your dispatch from our side. No discount code, no gimmick - just a small gesture for someone who was already considering it.</p>
-        <div class="highlight-box" style="text-align: center;">
+        <div style="background-color: #061009; border-left: 3px solid #16C784; padding: 16px 20px; margin: 25px 0; border-radius: 0 8px 8px 0; color: #E2E8F0;" style="text-align: center;">
           <strong>T-CORE - INR 1,499 - 60 vegetarian capsules - 30-day supply</strong>
         </div>
         <p>If this is not the right time, no hard feelings. We will not keep chasing this cart.</p>
@@ -368,7 +368,7 @@ const templates = {
       const body = `
         <p>Hey ${firstName},</p>
         <p>Your T-CORE order is confirmed.</p>
-        <div class="highlight-box">
+        <div style="background-color: #061009; border-left: 3px solid #16C784; padding: 16px 20px; margin: 25px 0; border-radius: 0 8px 8px 0; color: #E2E8F0;">
           <strong>Order:</strong> #${order_id}<br/>
           <strong>Product:</strong> T-CORE - 60 vegetarian capsules - 30-day supply
         </div>
@@ -386,7 +386,7 @@ const templates = {
         <p>Hey ${firstName},</p>
         <p>Before you start T-CORE, keep the protocol simple.</p>
         <p><strong>How to take it:</strong></p>
-        <ul class="bullet-list">
+        <ul style="margin: 0 0 25px 0; padding-left: 20px;">
           <li>2 capsules daily.</li>
           <li>Take after a meal.</li>
           <li>Take at roughly the same time every day.</li>
@@ -394,10 +394,10 @@ const templates = {
           <li>If you are under medication, speak to a physician before use.</li>
         </ul>
         <p><strong>What to expect:</strong></p>
-        <ul class="bullet-list">
-          <li><strong class="gold-text">Week 1:</strong> Routine. Do not look for dramatic changes.</li>
-          <li><strong class="gold-text">Week 2-3:</strong> Consistent users begin to understand how the product fits their rhythm.</li>
-          <li><strong class="gold-text">Week 4:</strong> Fair first read.</li>
+        <ul style="margin: 0 0 25px 0; padding-left: 20px;">
+          <li><strong style="color: #BFA46A;">Week 1:</strong> Routine. Do not look for dramatic changes.</li>
+          <li><strong style="color: #BFA46A;">Week 2-3:</strong> Consistent users begin to understand how the product fits their rhythm.</li>
+          <li><strong style="color: #BFA46A;">Week 4:</strong> Fair first read.</li>
         </ul>
         <p>T-CORE supports male vitality, stamina, energy, strength and wellness. It works best when your basics are strong: sleep, hydration, food and movement.</p>
       `;
@@ -411,7 +411,7 @@ const templates = {
         <p>Hey ${firstName},</p>
         <p>By now, T-CORE should be part of your daily routine.</p>
         <p>Here is why the formula is built the way it is:</p>
-        <ul class="bullet-list">
+        <ul style="margin: 0 0 25px 0; padding-left: 20px;">
           <li><strong>Shilajit</strong> supports vitality and stamina.</li>
           <li><strong>Fenugreek</strong> supports male strength and vitality.</li>
           <li><strong>Tongkat Ali</strong> gives the formula its modern masculine wellness edge.</li>
@@ -429,7 +429,7 @@ const templates = {
       const body = `
         <p>Hey ${firstName},</p>
         <p>You are around two weeks into your T-CORE routine. Quick check-in: how is it going?</p>
-        <ul class="bullet-list">
+        <ul style="margin: 0 0 25px 0; padding-left: 20px;">
           <li>Are you taking 2 capsules daily after a meal?</li>
           <li>Have you missed many days?</li>
           <li>Any discomfort, confusion or questions?</li>
@@ -480,7 +480,7 @@ const templates = {
         <p>Hey ${firstName},</p>
         <p>If you have taken T-CORE consistently, you are near the end of your first 30 days.</p>
         <p>Month 1 gives you the first read. Month 2 helps you understand whether this should become part of your regular routine. That is why we recommend avoiding a gap.</p>
-        <div class="highlight-box" style="text-align: center;">
+        <div style="background-color: #061009; border-left: 3px solid #16C784; padding: 16px 20px; margin: 25px 0; border-radius: 0 8px 8px 0; color: #E2E8F0;" style="text-align: center;">
           <strong>T-CORE - INR 1,499 - 30-day supply</strong>
         </div>
         <p>If you have questions before reordering, reply here.</p>
@@ -496,7 +496,7 @@ const templates = {
         <p>A single bottle is a trial. A 90-day supply is a routine.</p>
         <p>That is why the 90-day T-CORE bundle exists. It reduces gaps, saves you the reorder effort and keeps the protocol simple.</p>
         <p>Best for you if:</p>
-        <ul class="bullet-list">
+        <ul style="margin: 0 0 25px 0; padding-left: 20px;">
           <li>You used the first bottle consistently.</li>
           <li>You want to give T-CORE a fair longer window.</li>
           <li>You dislike running out and reordering last minute.</li>
@@ -537,7 +537,7 @@ const templates = {
         <p>Hey ${firstName},</p>
         <p>Thank you for leaving a review.</p>
         <p>For a new brand, real feedback matters more than almost anything else. It helps the next person decide with more confidence, and it helps us understand what to improve.</p>
-        <p>If you are comfortable, you can also share your experience on Instagram and tag us at <strong class="gold-text">${instagram_handle || '@biomenlabs'}</strong>. No pressure - only if it feels natural.</p>
+        <p>If you are comfortable, you can also share your experience on Instagram and tag us at <strong style="color: #BFA46A;">${instagram_handle || '@biomenlabs'}</strong>. No pressure - only if it feels natural.</p>
         <p>Thank you for being part of the early BIOMEN community.</p>
       `;
       return {
@@ -586,10 +586,10 @@ const templates = {
       const body = `
         <p>Hey ${firstName},</p>
         <p>Since you have tried T-CORE before, here is a returning customer offer if you want to restart the routine.</p>
-        <div class="highlight-box" style="text-align: center; font-size: 16px;">
+        <div style="background-color: #061009; border-left: 3px solid #16C784; padding: 16px 20px; margin: 25px 0; border-radius: 0 8px 8px 0; color: #E2E8F0;" style="text-align: center; font-size: 16px;">
           Use code <strong>RETURN15</strong> for <strong>15% OFF</strong> your next bottle.
         </div>
-        <p>This brings T-CORE to <strong class="gold-text">INR ${discounted_price || '1,274'}</strong> for your next order.</p>
+        <p>This brings T-CORE to <strong style="color: #BFA46A;">INR ${discounted_price || '1,274'}</strong> for your next order.</p>
         <p>Code valid for 7 days. If price was not the reason you stopped, reply and tell us what was.</p>
       `;
       return {
@@ -601,7 +601,7 @@ const templates = {
       const body = `
         <p>Hey ${firstName},</p>
         <p>This is the last winback email from us for now.</p>
-        <p>Your <strong class="gold-text">RETURN15</strong> code expires tonight. If you want to restart T-CORE, here is the link:</p>
+        <p>Your <strong style="color: #BFA46A;">RETURN15</strong> code expires tonight. If you want to restart T-CORE, here is the link:</p>
         <p>If now is not the right time, that is completely fine. We will step back instead of cluttering your inbox. Thank you for trying T-CORE once. If you decide to come back later, we will be here.</p>
       `;
       return {

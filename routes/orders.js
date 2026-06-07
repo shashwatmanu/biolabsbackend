@@ -34,7 +34,7 @@ const sendOrderConfirmationEmail = async (email, order) => {
       .join('');
 
     const mailOptions = {
-      from: `"Biomen Labs Order Desk" <${process.env.EMAIL_USER || 'placeholder@gmail.com'}>`,
+      from: `"Biomen Labs" <${process.env.EMAIL_USER || 'placeholder@gmail.com'}>`,
       to: email,
       subject: `Order Confirmed! Your Biomen Labs Vitality Protocol is processing (#${order._id})`,
       html: `

@@ -16,7 +16,7 @@ const sendNewsletterWelcomeEmail = async (email) => {
     });
 
     const mailOptions = {
-      from: `"Biomen Labs Premium Support" <${process.env.EMAIL_USER || 'placeholder@gmail.com'}>`,
+      from: `"Biomen Labs" <${process.env.EMAIL_USER || 'placeholder@gmail.com'}>`,
       to: email,
       subject: 'Welcome to Biomen Labs - Start Your 90-Day Masculine Vitality Reset Protocol',
       html: `
