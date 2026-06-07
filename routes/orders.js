@@ -5,6 +5,7 @@ const Product = require('../models/Product');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const dns = require('dns');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'biolabs_super_secret_key';
 
@@ -19,7 +20,10 @@ const sendOrderConfirmationEmail = async (email, order) => {
         user: process.env.EMAIL_USER || 'placeholder@gmail.com',
         pass: process.env.EMAIL_PASS || 'placeholderpassword'
       },
-      family: 4 // Force IPv4
+      family: 4, // Force IPv4
+      lookup: (hostname, options, callback) => {
+        return dns.lookup(hostname, { family: 4 }, callback);
+      }
     });
 
     const itemsList = order.items

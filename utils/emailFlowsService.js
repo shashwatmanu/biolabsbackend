@@ -1,6 +1,7 @@
 const EmailQueue = require('../models/EmailQueue');
 const { templates } = require('./emailTemplates');
 const nodemailer = require('nodemailer');
+const dns = require('dns');
 
 // Trigger timings configuration in milliseconds
 const TIMINGS = {
@@ -55,7 +56,10 @@ const getTransporter = () => {
       user: process.env.EMAIL_USER || 'placeholder@gmail.com',
       pass: process.env.EMAIL_PASS || 'placeholderpassword'
     },
-    family: 4 // Force IPv4
+    family: 4, // Force IPv4
+    lookup: (hostname, options, callback) => {
+      return dns.lookup(hostname, { family: 4 }, callback);
+    }
   });
 };
 
