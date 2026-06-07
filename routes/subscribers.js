@@ -65,8 +65,13 @@ router.post('/', async (req, res) => {
     // Save subscriber
     subscriber = await Subscriber.create({ email });
 
-    // Send email welcome receipt (handles nodemailer or mock logging)
-    await sendNewsletterWelcomeEmail(email);
+    // Trigger v2 Welcome email flow (4 steps)
+    const { triggerFlow } = require('../utils/emailFlowsService');
+    try {
+      await triggerFlow('Welcome', email, 'Customer');
+    } catch (flowErr) {
+      console.error('Failed to trigger Welcome flow for new subscriber:', flowErr);
+    }
 
     res.status(201).json({ message: 'Subscribed successfully', subscriber });
   } catch (error) {

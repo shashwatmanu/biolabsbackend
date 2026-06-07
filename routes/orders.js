@@ -101,15 +101,19 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Customer details (name, email, phone) are required for Guest checkout.' });
     }
 
-    // Get email to send order confirmation to
+    // Get email & name to send order confirmation and run retention flows
     let customerEmail = '';
+    let customerName = 'Customer';
     if (userId) {
       const user = await User.findById(userId);
       if (!user) return res.status(404).json({ error: 'User account session not found.' });
       customerEmail = user.email;
+      customerName = user.name || 'Customer';
     } else {
       customerEmail = guestDetails.email;
+      customerName = guestDetails.name || 'Customer';
     }
+    const firstName = customerName.trim().split(' ')[0] || 'Customer';
 
     // Validate stock and compute amount
     let subtotal = 0;
@@ -181,6 +185,25 @@ router.post('/', async (req, res) => {
 
     // Send transactional order confirmation email
     await sendOrderConfirmationEmail(customerEmail, order);
+
+    // Trigger v2 Retention lifecycle integration
+    const { applySuppressionRules, triggerFlow } = require('../utils/emailFlowsService');
+    try {
+      // 1. Suppress pre-purchase abandonment flows for this email
+      await applySuppressionRules(customerEmail, 'PLACED_ORDER');
+      // 2. Start the 5-step Post-Purchase Onboarding flow
+      await triggerFlow('Post-Purchase', customerEmail, firstName, {
+        order_id: order._id,
+        tracking_link: `http://localhost:5173/admin` // Redirect to admin panel/order page
+      });
+      // 3. Schedule Reorder flow at same time (timing delays handle spacing)
+      await triggerFlow('Reorder', customerEmail, firstName, {
+        reorder_link: `http://localhost:5173/product/tcore-1-bottle`,
+        bundle_link: `http://localhost:5173/product/tcore-3-bottles`
+      });
+    } catch (flowErr) {
+      console.error('Failed to trigger retention flows for order:', flowErr);
+    }
 
     res.status(201).json({
       success: true,

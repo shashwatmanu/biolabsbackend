@@ -75,6 +75,9 @@ mongoose
         await Review.insertMany(defaultReviews);
         console.log('✅ Default reviews seeded!');
       }
+      // Start the background email retention scheduler
+      const { startScheduler } = require('./utils/emailFlowsService');
+      startScheduler();
     } catch (err) {
       console.error('Error auto-seeding collections:', err);
     }
@@ -89,6 +92,7 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/subscribe', require('./routes/subscribers'));
+app.use('/api/email-flows', require('./routes/emailFlows'));
 
 // System Status Endpoint
 app.get('/api/status', (req, res) => {
