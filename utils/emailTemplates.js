@@ -5,6 +5,10 @@
 
 // Global Layout Wrapper for Premium Branding
 const wrapEmailTemplate = (title, bodyContentHtml, ctaText = '', ctaUrl = '') => {
+  const baseUrl = process.env.FRONTEND_URL || 'https://biomenlabs.com';
+  const unsubscribeLink = `${baseUrl}/unsubscribe`;
+  const managePreferencesLink = `${baseUrl}/preferences`;
+
   const ctaBtn = ctaText && ctaUrl ? `
     <div style="margin: 30px 0; text-align: center;">
       <a href="${ctaUrl}" target="_blank" style="background-color: #16C784; color: #030705; font-family: 'Outfit', 'Helvetica Neue', sans-serif; font-size: 16px; font-weight: bold; text-decoration: none; padding: 14px 36px; border-radius: 8px; display: inline-block; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(22, 199, 132, 0.2); transition: all 0.2s ease;">
@@ -136,7 +140,7 @@ const wrapEmailTemplate = (title, bodyContentHtml, ctaText = '', ctaUrl = '') =>
           <div class="footer">
             🔒 Safe & Secure. This email was sent to you because you opted in at our website.<br/>
             Biomen Labs Premium Vitality, India. <br/>
-            <a href="{{unsubscribe_link}}">Unsubscribe</a> | <a href="{{manage_preferences_link}}">Manage Preferences</a>
+            <a href="${unsubscribeLink}">Unsubscribe</a> | <a href="${managePreferencesLink}">Manage Preferences</a>
           </div>
         </div>
       </div>
