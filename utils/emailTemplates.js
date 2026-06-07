@@ -48,7 +48,7 @@ const wrapEmailTemplate = (title, bodyContentHtml, ctaText = '', ctaUrl = '') =>
                     <table border="0" cellpadding="0" cellspacing="0" style="margin: 0; padding: 0;">
                       <tr>
                         <td valign="middle" style="padding-right: 10px;">
-                          <img src="https://raw.githubusercontent.com/shashwatmanu/biomen/main/public/logo/logo_white_symbol.png" alt="BIOMEN LABS" style="height: 32px; width: 32px; display: block; outline: none; border: none; text-decoration: none;" />
+                          <img src="https://biomenlabs.com/logo/logo_white_symbol.png" alt="BIOMEN LABS" style="height: 32px; width: 32px; display: block; outline: none; border: none; text-decoration: none;" />
                         </td>
                         <td valign="middle" style="font-family: 'Outfit', 'Helvetica Neue', Arial, sans-serif; font-size: 22px; font-weight: 900; letter-spacing: -0.5px; color: #F4F6F2; text-transform: uppercase; line-height: 1;">
                           BIOMEN <span style="color: #16C784;">LABS</span>
