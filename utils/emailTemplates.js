@@ -29,121 +29,45 @@ const wrapEmailTemplate = (title, bodyContentHtml, ctaText = '', ctaUrl = '') =>
         body {
           margin: 0;
           padding: 0;
-          background-color: #030705;
+          background-color: transparent;
           color: #F4F6F2;
           font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
         }
-        .container {
-          max-width: 600px;
-          margin: 0 auto;
-          background-color: #030705;
-          border: 1px solid #1a251e;
-          border-radius: 12px;
-          overflow: hidden;
-        }
-        .header {
-          padding: 35px 40px 10px 40px;
-          text-align: left;
-        }
-        .logo {
-          color: #16C784;
-          font-family: 'Outfit', sans-serif;
-          font-size: 22px;
-          font-weight: 700;
-          letter-spacing: 2px;
-          text-transform: uppercase;
-        }
-        .logo-sub {
-          color: #BFA46A;
-          font-size: 9px;
-          letter-spacing: 3px;
-          text-transform: uppercase;
-          margin-top: 2px;
-        }
-        .content {
-          padding: 20px 40px 30px 40px;
-          font-size: 15px;
-          line-height: 1.65;
-          color: #E2E8F0;
-        }
-        .content p {
-          margin: 0 0 20px 0;
-        }
-        .signature {
-          margin-top: 35px;
-          border-top: 1px solid rgba(255, 255, 255, 0.05);
-          padding-top: 20px;
-          color: #A8B3AA;
-        }
-        .founder-names {
-          color: #F4F6F2;
-          font-weight: bold;
-          font-family: 'Outfit', sans-serif;
-        }
-        .footer {
-          background-color: #010402;
-          padding: 30px 40px;
-          text-align: center;
-          font-size: 11px;
-          color: #64748B;
-          border-top: 1px solid #1a251e;
-        }
-        .footer a {
-          color: #16C784;
-          text-decoration: none;
-        }
-        .highlight-box {
-          background-color: #061009;
-          border-left: 3px solid #16C784;
-          padding: 16px 20px;
-          margin: 25px 0;
-          border-radius: 0 8px 8px 0;
-        }
-        .highlight-title {
-          font-family: 'Outfit', sans-serif;
-          color: #BFA46A;
-          font-weight: 600;
-          text-transform: uppercase;
-          font-size: 13px;
-          margin-bottom: 8px;
-          letter-spacing: 1px;
-        }
-        .bullet-list {
-          margin: 0 0 25px 0;
-          padding-left: 20px;
-        }
-        .bullet-list li {
-          margin-bottom: 12px;
-          color: #E2E8F0;
-        }
-        .gold-text {
-          color: #BFA46A;
-        }
       </style>
     </head>
-    <body>
-      <div style="background-color: #030705; padding: 20px 0;">
-        <div class="container" style="max-width: 600px; margin: 0 auto; background-color: #030705; border: 1px solid #1a251e; border-radius: 12px; overflow: hidden; color: #F4F6F2; font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;">
-          <div class="header" style="padding: 35px 40px 10px 40px; text-align: left;">
-            <div class="logo" style="color: #16C784; font-family: 'Outfit', 'Helvetica Neue', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">BIOMEN LABS</div>
-            <div class="logo-sub" style="color: #BFA46A; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; margin-top: 2px; font-family: 'Outfit', 'Helvetica Neue', sans-serif;">T-CORE VITALITY</div>
-          </div>
-          <div class="content" style="padding: 20px 40px 30px 40px; font-size: 15px; line-height: 1.65; color: #E2E8F0;">
-            ${bodyContentHtml}
-            ${ctaBtn}
-            <div class="signature" style="margin-top: 35px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 20px; color: #A8B3AA;">
-              Nikhil & Ayushman<br/>
-              <span class="founder-names" style="color: #F4F6F2; font-weight: bold; font-family: 'Outfit', 'Helvetica Neue', sans-serif;">BIOMEN LABS</span>
-            </div>
-          </div>
-          <div class="footer" style="background-color: #010402; padding: 30px 40px; text-align: center; font-size: 11px; color: #64748B; border-top: 1px solid #1a251e; line-height: 1.5;">
-            🔒 Safe & Secure. This email was sent to you because you opted in at our website.<br/>
-            Biomen Labs Premium Vitality, India. <br/>
-            <a href="${unsubscribeLink}" style="color: #16C784; text-decoration: none;">Unsubscribe</a> | <a href="${managePreferencesLink}" style="color: #16C784; text-decoration: none;">Manage Preferences</a>
-          </div>
-        </div>
-      </div>
+    <body style="margin: 0; padding: 0; background-color: transparent; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed; background-color: transparent; margin: 0; padding: 0; width: 100% !important;">
+        <tr>
+          <td align="center" style="padding: 20px 0 30px 0;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #030705; border: 1px solid #1a251e; border-radius: 12px; overflow: hidden; color: #F4F6F2; font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; text-align: left;">
+              <tr>
+                <td style="padding: 0;">
+                  <!-- Header with Logo -->
+                  <div style="padding: 35px 40px 10px 40px; text-align: left;">
+                    <img src="${baseUrl}/logo/logo_white_full.png" alt="BIOMEN LABS" style="height: 35px; max-height: 35px; width: auto; display: block; outline: none; border: none; text-decoration: none;" />
+                  </div>
+                  <!-- Content Body -->
+                  <div style="padding: 20px 40px 30px 40px; font-size: 15px; line-height: 1.65; color: #E2E8F0;">
+                    ${bodyContentHtml}
+                    ${ctaBtn}
+                    <div style="margin-top: 35px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 20px; color: #A8B3AA;">
+                      Nikhil & Ayushman<br/>
+                      <span style="color: #F4F6F2; font-weight: bold; font-family: 'Outfit', 'Helvetica Neue', sans-serif;">BIOMEN LABS</span>
+                    </div>
+                  </div>
+                  <!-- Footer -->
+                  <div style="background-color: #010402; padding: 30px 40px; text-align: center; font-size: 11px; color: #64748B; border-top: 1px solid #1a251e; line-height: 1.5;">
+                    🔒 Safe & Secure. This email was sent to you because you opted in at our website.<br/>
+                    Biomen Labs Premium Vitality, India. <br/>
+                    <a href="${unsubscribeLink}" style="color: #16C784; text-decoration: none; font-weight: bold;">Unsubscribe</a>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
     </body>
     </html>
   `;
