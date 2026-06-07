@@ -49,13 +49,13 @@ const TIMINGS = {
 const getTransporter = () => {
   return nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    port: 587,
+    secure: false, // Use TLS/STARTTLS on port 587 to avoid Render's port 465 firewall blocks
     auth: {
       user: process.env.EMAIL_USER || 'placeholder@gmail.com',
       pass: process.env.EMAIL_PASS || 'placeholderpassword'
     },
-    family: 4 // Force IPv4 to prevent IPv6 ENETUNREACH on Render's network environment
+    family: 4 // Force IPv4
   });
 };
 

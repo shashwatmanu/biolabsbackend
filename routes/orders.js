@@ -13,8 +13,8 @@ const sendOrderConfirmationEmail = async (email, order) => {
   try {
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
+      port: 587,
+      secure: false, // Port 587 with STARTTLS bypasses firewall restrictions
       auth: {
         user: process.env.EMAIL_USER || 'placeholder@gmail.com',
         pass: process.env.EMAIL_PASS || 'placeholderpassword'
