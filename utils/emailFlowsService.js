@@ -206,6 +206,7 @@ const runEmailSenderJob = async () => {
     }
   } catch (error) {
     console.error('[EmailFlowsService] Error in runEmailSenderJob:', error);
+    throw error;
   }
 };
 

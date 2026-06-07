@@ -49,7 +49,7 @@ router.post('/run-scheduler', async (req, res) => {
     res.json({ success: true, message: 'Scheduler job triggered successfully' });
   } catch (error) {
     console.error('Error running scheduler:', error);
-    res.status(500).json({ error: 'Failed to run scheduler job' });
+    res.status(500).json({ error: 'Failed to run scheduler job', details: error.message, stack: error.stack });
   }
 });
 
@@ -79,7 +79,7 @@ router.post('/send-now/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Error sending email instantly:', error);
-    res.status(500).json({ error: 'Failed to process email dispatch' });
+    res.status(500).json({ error: 'Failed to process email dispatch', details: error.message, stack: error.stack });
   }
 });
 
