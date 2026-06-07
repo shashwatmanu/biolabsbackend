@@ -16,6 +16,48 @@ router.get('/queue', async (req, res) => {
   }
 });
 
+// @desc    Test network connection to SMTP servers
+// @route   GET /api/email-flows/test-connection
+router.get('/test-connection', async (req, res) => {
+  const dns = require('dns');
+  const net = require('net');
+  const results = {};
+
+  try {
+    const ip4s = await new Promise((resolve, reject) => {
+      dns.resolve4('smtp.gmail.com', (err, addresses) => err ? reject(err) : resolve(addresses));
+    });
+    results.dns_resolve4 = ip4s;
+
+    const connectPort = async (port, host) => {
+      return new Promise((resolve) => {
+        const socket = net.createConnection(port, host);
+        socket.setTimeout(4000);
+        socket.on('connect', () => {
+          socket.destroy();
+          resolve({ status: 'connected' });
+        });
+        socket.on('error', (err) => {
+          resolve({ status: 'error', message: err.message, code: err.code });
+        });
+        socket.on('timeout', () => {
+          socket.destroy();
+          resolve({ status: 'timeout' });
+        });
+      });
+    };
+
+    results.connect_587_ip = await connectPort(587, ip4s[0]);
+    results.connect_587_host = await connectPort(587, 'smtp.gmail.com');
+    results.connect_465_ip = await connectPort(465, ip4s[0]);
+    results.connect_80_google = await connectPort(80, 'google.com');
+
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message, stack: err.stack, results });
+  }
+});
+
 // @desc    Manually trigger a flow for an email
 // @route   POST /api/email-flows/trigger
 router.post('/trigger', async (req, res) => {
