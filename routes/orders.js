@@ -34,13 +34,13 @@ const sendOrderConfirmationEmail = async (email, order) => {
       .join('');
 
     const mailOptions = {
-      from: `"Biolabs Order Desk" <${process.env.EMAIL_USER || 'placeholder@gmail.com'}>`,
+      from: `"Biomen Labs Order Desk" <${process.env.EMAIL_USER || 'placeholder@gmail.com'}>`,
       to: email,
-      subject: `Order Confirmed! Your Biolabs Vitality Protocol is processing (#${order._id})`,
+      subject: `Order Confirmed! Your Biomen Labs Vitality Protocol is processing (#${order._id})`,
       html: `
         <div style="background-color: #030705; color: #F4F6F2; font-family: 'Helvetica Neue', sans-serif; padding: 40px; border-radius: 16px; border: 1px solid #0FA36B; max-width: 600px; margin: auto;">
           <h1 style="color: #16C784; text-transform: uppercase; font-size: 24px; letter-spacing: 2px;">ORDER SECURED</h1>
-          <p style="font-size: 16px;">Thank you for your order! Your Biolabs shipment is being prepared.</p>
+          <p style="font-size: 16px;">Thank you for your order! Your Biomen Labs shipment is being prepared.</p>
           <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;" />
           
           <h3 style="color: #BFA46A; text-transform: uppercase;">Order Summary</h3>
@@ -199,14 +199,15 @@ router.post('/', async (req, res) => {
       // 1. Suppress pre-purchase abandonment flows for this email
       await applySuppressionRules(customerEmail, 'PLACED_ORDER');
       // 2. Start the 5-step Post-Purchase Onboarding flow
+      const baseUrl = process.env.FRONTEND_URL || 'https://biomenlabs.com';
       await triggerFlow('Post-Purchase', customerEmail, firstName, {
         order_id: order._id,
-        tracking_link: `http://localhost:5173/admin` // Redirect to admin panel/order page
+        tracking_link: `${baseUrl}/admin` // Redirect to admin panel/order page
       });
       // 3. Schedule Reorder flow at same time (timing delays handle spacing)
       await triggerFlow('Reorder', customerEmail, firstName, {
-        reorder_link: `http://localhost:5173/product/tcore-1-bottle`,
-        bundle_link: `http://localhost:5173/product/tcore-3-bottles`
+        reorder_link: `${baseUrl}/products/t-core`,
+        bundle_link: `${baseUrl}/products/t-core`
       });
     } catch (flowErr) {
       console.error('Failed to trigger retention flows for order:', flowErr);

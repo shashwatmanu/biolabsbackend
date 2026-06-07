@@ -16,18 +16,18 @@ const sendNewsletterWelcomeEmail = async (email) => {
     });
 
     const mailOptions = {
-      from: `"Biolabs Premium Support" <${process.env.EMAIL_USER || 'placeholder@gmail.com'}>`,
+      from: `"Biomen Labs Premium Support" <${process.env.EMAIL_USER || 'placeholder@gmail.com'}>`,
       to: email,
-      subject: 'Welcome to Biolabs - Start Your 90-Day Masculine Vitality Reset Protocol',
+      subject: 'Welcome to Biomen Labs - Start Your 90-Day Masculine Vitality Reset Protocol',
       html: `
         <div style="background-color: #030705; color: #F4F6F2; font-family: 'Helvetica Neue', sans-serif; padding: 40px; border-radius: 16px; border: 1px solid #0FA36B;">
-          <h1 style="color: #16C784; text-transform: uppercase; letter-spacing: 2px;">WELCOME TO BIOLABS</h1>
-          <p style="font-size: 16px; line-height: 1.6;">You are now subcribed to the Biolabs newsletter.</p>
+          <h1 style="color: #16C784; text-transform: uppercase; letter-spacing: 2px;">WELCOME TO BIOMEN LABS</h1>
+          <p style="font-size: 16px; line-height: 1.6;">You are now subscribed to the Biomen Labs newsletter.</p>
           <p style="font-size: 16px; line-height: 1.6;">Prepare yourself for the ultimate clinical-grade protocol to unlock daily performance, stamina, and drive rhythm.</p>
           <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;" />
           <div style="font-size: 12px; color: #A8B3AA;">
             🔒 Safe & Secure. Unsubscribe at any time.<br/>
-            Biolabs Premium Vitality, India.
+            Biomen Labs Premium Vitality, India.
           </div>
         </div>
       `

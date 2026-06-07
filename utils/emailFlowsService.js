@@ -97,14 +97,15 @@ const triggerFlow = async (flowName, email, firstName = 'Customer', metadata = {
       const scheduledFor = new Date(now + delay);
 
       // Construct dynamic variables
+      const baseUrl = process.env.FRONTEND_URL || 'https://biomenlabs.com';
       const flowVars = {
-        product_link: 'http://localhost:5173/product/tcore-1-bottle',
-        cart_link: 'http://localhost:5173/checkout',
-        reorder_link: 'http://localhost:5173/product/tcore-1-bottle',
-        bundle_link: 'http://localhost:5173/product/tcore-3-bottles',
-        guide_link: 'http://localhost:5173/science',
-        review_link: 'http://localhost:5173/reviews',
-        referral_link: 'http://localhost:5173/contact',
+        product_link: `${baseUrl}/products/t-core`,
+        cart_link: `${baseUrl}/checkout`,
+        reorder_link: `${baseUrl}/products/t-core`,
+        bundle_link: `${baseUrl}/products/t-core`,
+        guide_link: `${baseUrl}/science`,
+        review_link: `${baseUrl}/reviews`,
+        referral_link: `${baseUrl}/contact`,
         instagram_handle: '@biomenlabs',
         support_email: 'support@biomenlabs.com',
         feedback_email: 'support@biomenlabs.com',
@@ -188,7 +189,7 @@ const runEmailSenderJob = async () => {
 
         if (isLive) {
           await transporter.sendMail({
-            from: `"Biolabs Support" <${process.env.EMAIL_USER}>`,
+            from: `"Biomen Labs Support" <${process.env.EMAIL_USER}>`,
             to: emailItem.email,
             subject: compiled.subject,
             html: compiled.html
