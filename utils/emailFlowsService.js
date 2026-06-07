@@ -48,11 +48,14 @@ const TIMINGS = {
 // Transporter logic using environment settings
 const getTransporter = () => {
   return nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL_USER || 'placeholder@gmail.com',
       pass: process.env.EMAIL_PASS || 'placeholderpassword'
-    }
+    },
+    family: 4 // Force IPv4 to prevent IPv6 ENETUNREACH on Render's network environment
   });
 };
 

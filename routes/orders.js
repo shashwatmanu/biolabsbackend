@@ -12,11 +12,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'biolabs_super_secret_key';
 const sendOrderConfirmationEmail = async (email, order) => {
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER || 'placeholder@gmail.com',
         pass: process.env.EMAIL_PASS || 'placeholderpassword'
-      }
+      },
+      family: 4 // Force IPv4
     });
 
     const itemsList = order.items
