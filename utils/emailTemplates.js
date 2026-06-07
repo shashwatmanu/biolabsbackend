@@ -45,7 +45,7 @@ const wrapEmailTemplate = (title, bodyContentHtml, ctaText = '', ctaUrl = '') =>
                 <td style="padding: 0;">
                   <!-- Header with Logo -->
                   <div style="padding: 35px 40px 10px 40px; text-align: left;">
-                    <img src="${baseUrl}/logo/logo_white_full.png" alt="BIOMEN LABS" style="height: 35px; max-height: 35px; width: auto; display: block; outline: none; border: none; text-decoration: none;" />
+                    <img src="https://raw.githubusercontent.com/shashwatmanu/biomen/main/public/logo/logo_white_full.png" alt="BIOMEN LABS" style="height: 35px; max-height: 35px; width: auto; display: block; outline: none; border: none; text-decoration: none;" />
                   </div>
                   <!-- Content Body -->
                   <div style="padding: 20px 40px 30px 40px; font-size: 15px; line-height: 1.65; color: #E2E8F0;">
