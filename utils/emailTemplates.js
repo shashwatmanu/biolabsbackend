@@ -47,8 +47,15 @@ const wrapEmailTemplate = (title, bodyContentHtml, ctaText = '', ctaUrl = '') =>
                   <div style="padding: 35px 40px 15px 40px; text-align: left;">
                     <table border="0" cellpadding="0" cellspacing="0" style="margin: 0; padding: 0;">
                       <tr>
-                        <td valign="middle" style="padding-right: 10px;">
-                          <img src="https://biomenlabs.com/logo/logo_white_symbol.png" alt="BIOMEN LABS" style="height: 32px; width: 32px; display: block; outline: none; border: none; text-decoration: none;" />
+                        <td valign="middle" style="padding-right: 12px;">
+                          <!-- Circular logo container with green hue matching website styling -->
+                          <table border="0" cellpadding="0" cellspacing="0" style="background-color: #052E22; border: 1px solid #16C784; border-radius: 50%; width: 36px; height: 36px; text-align: center;">
+                            <tr>
+                              <td align="center" valign="middle" style="padding: 6px;">
+                                <img src="https://biomenlabs.com/logo/logo_white_symbol.png" alt="BIOMEN LABS" style="height: 22px; width: 22px; display: block; outline: none; border: none; text-decoration: none; margin: 0 auto;" />
+                              </td>
+                            </tr>
+                          </table>
                         </td>
                         <td valign="middle" style="font-family: 'Outfit', 'Helvetica Neue', Arial, sans-serif; font-size: 22px; font-weight: 900; letter-spacing: -0.5px; color: #F4F6F2; text-transform: uppercase; line-height: 1;">
                           BIOMEN <span style="color: #16C784;">LABS</span>
