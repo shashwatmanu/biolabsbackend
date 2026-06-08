@@ -40,7 +40,7 @@ const wrapEmailTemplate = (title, bodyContentHtml, ctaText = '', ctaUrl = '') =>
       <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed; background-color: transparent; margin: 0; padding: 0; width: 100% !important;">
         <tr>
           <td align="center" style="padding: 20px 0 30px 0;">
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #030705; border: 1px solid #1a251e; border-radius: 12px; overflow: hidden; color: #F4F6F2; font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; text-align: left;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #041009; border: 1px solid #0d2c18; border-radius: 12px; overflow: hidden; color: #F4F6F2; font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; text-align: left;">
               <tr>
                 <td style="padding: 0;">
                   <!-- Header with Logo -->
@@ -73,7 +73,7 @@ const wrapEmailTemplate = (title, bodyContentHtml, ctaText = '', ctaUrl = '') =>
                     </div>
                   </div>
                   <!-- Footer -->
-                  <div style="background-color: #010402; padding: 30px 40px; text-align: center; font-size: 11px; color: #64748B; border-top: 1px solid #1a251e; line-height: 1.5;">
+                  <div style="background-color: #020804; padding: 30px 40px; text-align: center; font-size: 11px; color: #64748B; border-top: 1px solid #0d2c18; line-height: 1.5;">
                     🔒 Safe & Secure. This email was sent to you because you opted in at our website.<br/>
                     Biomen Labs Premium Vitality, India. <br/>
                     <a href="${unsubscribeLink}" style="color: #16C784; text-decoration: none; font-weight: bold;">Unsubscribe</a>
