@@ -6,8 +6,17 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const dns = require('dns');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'biolabs_super_secret_key';
+
+// Initialize Razorpay
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_T1DPpvbyCF8PbS',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || '6zC5FvgoQPdCD8yYrRZWuox1'
+});
+
 
 // Helper to send transactional order emails
 const sendOrderConfirmationEmail = async (email, order) => {
@@ -93,13 +102,17 @@ router.post('/', async (req, res) => {
 
     // Optional: Determine if user is logged in
     let userId = null;
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-      try {
-        const token = req.headers.authorization.split(' ')[1];
-        const decoded = jwt.verify(token, JWT_SECRET);
-        userId = decoded.id;
-      } catch (err) {
-        console.log('Order processed without login session or invalid token (proceeding as Guest)');
+    if (req.headers.authorization) {
+      if (req.headers.authorization.startsWith('Bearer')) {
+        try {
+          const token = req.headers.authorization.split(' ')[1];
+          const decoded = jwt.verify(token, JWT_SECRET);
+          userId = decoded.id;
+        } catch (err) {
+          return res.status(401).json({ error: 'Unauthorized: Invalid or expired token.' });
+        }
+      } else {
+        return res.status(401).json({ error: 'Unauthorized: Invalid token format.' });
       }
     }
 
@@ -107,20 +120,6 @@ router.post('/', async (req, res) => {
     if (!userId && (!guestDetails || !guestDetails.name || !guestDetails.email || !guestDetails.phone)) {
       return res.status(400).json({ error: 'Customer details (name, email, phone) are required for Guest checkout.' });
     }
-
-    // Get email & name to send order confirmation and run retention flows
-    let customerEmail = '';
-    let customerName = 'Customer';
-    if (userId) {
-      const user = await User.findById(userId);
-      if (!user) return res.status(404).json({ error: 'User account session not found.' });
-      customerEmail = user.email;
-      customerName = user.name || 'Customer';
-    } else {
-      customerEmail = guestDetails.email;
-      customerName = guestDetails.name || 'Customer';
-    }
-    const firstName = customerName.trim().split(' ')[0] || 'Customer';
 
     // Validate stock and compute amount
     let subtotal = 0;
@@ -160,15 +159,26 @@ router.post('/', async (req, res) => {
     }
     const totalAmount = subtotal + shippingCharges - discountAmount;
 
-    // Deduct stock levels for items purchased
-    for (const item of items) {
-      await Product.findOneAndUpdate(
-        { id: item.id },
-        { $inc: { stock: -item.quantity } }
-      );
+    // Validate amount is at least 100 paise (₹1)
+    const totalAmountPaise = totalAmount * 100;
+    if (totalAmountPaise < 100) {
+      return res.status(400).json({ error: 'Order amount must be at least 100 paise (₹1).' });
     }
 
-    // Scaffold Order Entry in MongoDB
+    // Create order via Razorpay API
+    let rzpOrder;
+    try {
+      rzpOrder = await razorpay.orders.create({
+        amount: totalAmountPaise,
+        currency: 'INR',
+        receipt: `receipt_order_${Date.now()}`
+      });
+    } catch (rzpErr) {
+      console.error('Razorpay API Error during order creation:', rzpErr);
+      return res.status(500).json({ error: 'Failed to create payment transaction order with Razorpay.' });
+    }
+
+    // Scaffold Order Entry in MongoDB as pending
     const orderData = {
       items: validatedItems,
       subtotal,
@@ -176,9 +186,8 @@ router.post('/', async (req, res) => {
       totalAmount,
       shippingAddress,
       paymentMethod: paymentMethod || 'Razorpay',
-      paymentStatus: 'paid', // Mark paid immediately for mock checkout flow
-      razorpayOrderId: `rpay_order_${Date.now()}`,
-      razorpayPaymentId: `rpay_pay_${Date.now()}`,
+      paymentStatus: 'pending',
+      razorpayOrderId: rzpOrder.id,
       invoiceNumber: `INV-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`
     };
 
@@ -189,6 +198,89 @@ router.post('/', async (req, res) => {
     }
 
     const order = await Order.create(orderData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Razorpay order created successfully!',
+      order,
+      razorpayOrder: {
+        id: rzpOrder.id,
+        amount: rzpOrder.amount,
+        currency: rzpOrder.currency
+      }
+    });
+  } catch (error) {
+    console.error('Order creation error:', error);
+    res.status(500).json({ error: 'Server error processing order checkout' });
+  }
+});
+
+// @desc    Verify Razorpay payment signature and fulfill order
+// @route   POST /api/orders/verify-payment
+// @access  Public
+router.post('/verify-payment', async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({ error: 'Missing required payment verification fields.' });
+    }
+
+    // Validate signature
+    const secret = process.env.RAZORPAY_KEY_SECRET || '6zC5FvgoQPdCD8yYrRZWuox1';
+    const text = razorpay_order_id + '|' + razorpay_payment_id;
+    const generated_signature = crypto
+      .createHmac('sha256', secret)
+      .update(text)
+      .digest('hex');
+
+    if (generated_signature !== razorpay_signature) {
+      console.error('Payment verification failed: signature mismatch');
+      return res.status(400).json({ error: 'Payment verification failed. Signatures do not match.' });
+    }
+
+    // Locate the pending order in database
+    const order = await Order.findOne({ razorpayOrderId: razorpay_order_id });
+    if (!order) {
+      return res.status(404).json({ error: 'Order associated with this payment transaction was not found.' });
+    }
+
+    // If order is already paid, return success to prevent double stock decrement
+    if (order.paymentStatus === 'paid') {
+      return res.status(200).json({
+        success: true,
+        message: 'Order already fulfilled.',
+        order
+      });
+    }
+
+    // Deduct stock levels for items purchased
+    for (const item of order.items) {
+      await Product.findOneAndUpdate(
+        { id: item.productId },
+        { $inc: { stock: -item.quantity } }
+      );
+    }
+
+    // Update payment status
+    order.paymentStatus = 'paid';
+    order.razorpayPaymentId = razorpay_payment_id;
+    await order.save();
+
+    // Get email & name to send order confirmation and run retention flows
+    let customerEmail = '';
+    let customerName = 'Customer';
+    if (order.user) {
+      const user = await User.findById(order.user);
+      if (user) {
+        customerEmail = user.email;
+        customerName = user.name || 'Customer';
+      }
+    } else if (order.guestDetails) {
+      customerEmail = order.guestDetails.email;
+      customerName = order.guestDetails.name || 'Customer';
+    }
+    const firstName = customerName.trim().split(' ')[0] || 'Customer';
 
     // Send transactional order confirmation email
     await sendOrderConfirmationEmail(customerEmail, order);
@@ -213,16 +305,17 @@ router.post('/', async (req, res) => {
       console.error('Failed to trigger retention flows for order:', flowErr);
     }
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
-      message: 'Order created successfully!',
+      message: 'Payment verified and order finalized successfully!',
       order
     });
   } catch (error) {
-    console.error('Order creation error:', error);
-    res.status(500).json({ error: 'Server error processing order checkout' });
+    console.error('Payment verification error:', error);
+    res.status(500).json({ error: 'Server error processing payment verification' });
   }
 });
+
 
 // @desc    Get order history for authenticated user
 // @route   GET /api/orders/myorders
