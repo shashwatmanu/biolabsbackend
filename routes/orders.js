@@ -21,17 +21,23 @@ const razorpay = new Razorpay({
 // Helper to send transactional order emails
 const sendOrderConfirmationEmail = async (email, order) => {
   try {
+    const ip = await new Promise((resolve) => {
+      dns.lookup('smtp.gmail.com', { family: 4 }, (err, address) => {
+        resolve(address || 'smtp.gmail.com');
+      });
+    });
+
     const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
+      host: ip,
       port: 587,
       secure: false, // Port 587 with STARTTLS bypasses firewall restrictions
       auth: {
         user: process.env.EMAIL_USER || 'placeholder@gmail.com',
         pass: process.env.EMAIL_PASS || 'placeholderpassword'
       },
-      family: 4, // Force IPv4
-      lookup: (hostname, options, callback) => {
-        return dns.lookup(hostname, { family: 4 }, callback);
+      servername: 'smtp.gmail.com',
+      tls: {
+        servername: 'smtp.gmail.com'
       }
     });
 
@@ -282,8 +288,8 @@ router.post('/verify-payment', async (req, res) => {
     }
     const firstName = customerName.trim().split(' ')[0] || 'Customer';
 
-    // Send transactional order confirmation email
-    await sendOrderConfirmationEmail(customerEmail, order);
+    // Send transactional order confirmation email (non-blocking background task)
+    sendOrderConfirmationEmail(customerEmail, order);
 
     // Trigger v2 Retention lifecycle integration
     const { applySuppressionRules, triggerFlow } = require('../utils/emailFlowsService');

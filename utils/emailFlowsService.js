@@ -47,18 +47,24 @@ const TIMINGS = {
 };
 
 // Transporter logic using environment settings
-const getTransporter = () => {
+const getTransporter = async () => {
+  const ip = await new Promise((resolve) => {
+    dns.lookup('smtp.gmail.com', { family: 4 }, (err, address) => {
+      resolve(address || 'smtp.gmail.com');
+    });
+  });
+
   return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: ip,
     port: 587,
     secure: false, // Use TLS/STARTTLS on port 587 to avoid Render's port 465 firewall blocks
     auth: {
       user: process.env.EMAIL_USER || 'placeholder@gmail.com',
       pass: process.env.EMAIL_PASS || 'placeholderpassword'
     },
-    family: 4, // Force IPv4
-    lookup: (hostname, options, callback) => {
-      return dns.lookup(hostname, { family: 4 }, callback);
+    servername: 'smtp.gmail.com',
+    tls: {
+      servername: 'smtp.gmail.com'
     }
   });
 };
@@ -184,7 +190,7 @@ const runEmailSenderJob = async () => {
 
     console.log(`[EmailFlowsService] Found ${pendingEmails.length} emails due for dispatch.`);
 
-    const transporter = getTransporter();
+    const transporter = await getTransporter();
     const isLive = process.env.EMAIL_USER && process.env.EMAIL_USER !== 'placeholder@gmail.com';
 
     for (const emailItem of pendingEmails) {
