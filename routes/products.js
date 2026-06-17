@@ -36,7 +36,7 @@ const defaultProducts = [
   }
 ];
 
-// @desc    Get all products
+// @desc    Get all products (public, active only)
 // @route   GET /api/products
 // @access  Public
 router.get('/', async (req, res) => {
@@ -46,6 +46,48 @@ router.get('/', async (req, res) => {
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ error: 'Server error fetching product catalog' });
+  }
+});
+
+// @desc    Get all products for admin (including inactive)
+// @route   GET /api/products/admin/all
+// @access  Private/Admin
+router.get('/admin/all', async (req, res) => {
+  try {
+    const products = await Product.find({}).sort({ createdAt: -1 });
+    res.json(products);
+  } catch (error) {
+    console.error('Admin fetch products error:', error);
+    res.status(500).json({ error: 'Server error fetching admin product catalog' });
+  }
+});
+
+// @desc    Update a product (stock, price, active status)
+// @route   PUT /api/products/admin/:id
+// @access  Private/Admin
+router.put('/admin/:id', async (req, res) => {
+  try {
+    const { stock, price, mrp, isActive } = req.body;
+    const updateFields = {};
+    if (stock !== undefined) updateFields.stock = parseInt(stock, 10);
+    if (price !== undefined) updateFields.price = parseFloat(price);
+    if (mrp !== undefined) updateFields.mrp = parseFloat(mrp);
+    if (isActive !== undefined) updateFields.isActive = Boolean(isActive);
+
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateFields,
+      { new: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    res.json({ success: true, message: 'Product updated successfully!', product });
+  } catch (error) {
+    console.error('Admin update product error:', error);
+    res.status(500).json({ error: 'Server error updating product' });
   }
 });
 

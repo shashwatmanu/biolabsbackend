@@ -18,6 +18,84 @@ const razorpay = new Razorpay({
 });
 
 
+// Helper to send admin alert email when a new paid order comes in
+const sendAdminOrderAlert = async (order) => {
+  try {
+    const adminEmail = process.env.ADMIN_ALERT_EMAIL || process.env.EMAIL_USER || 'info@biomenlabs.com';
+    if (!process.env.EMAIL_USER || process.env.EMAIL_USER === 'placeholder@gmail.com') {
+      console.log(`[Admin Alert Mock] New order notification would be sent to admin: ${adminEmail}`);
+      return;
+    }
+
+    const ip = await new Promise((resolve) => {
+      dns.lookup('smtp.gmail.com', { family: 4 }, (err, address) => {
+        resolve(address || 'smtp.gmail.com');
+      });
+    });
+
+    const transporter = nodemailer.createTransport({
+      host: ip,
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      },
+      servername: 'smtp.gmail.com',
+      tls: { servername: 'smtp.gmail.com' }
+    });
+
+    const customerName = order.guestDetails?.name || 'Registered User';
+    const customerEmail = order.guestDetails?.email || 'N/A';
+    const customerPhone = order.guestDetails?.phone || 'N/A';
+    const itemsList = order.items
+      .map(i => `<li><strong>${i.title}</strong> × ${i.quantity} — ₹${(i.price * i.quantity).toLocaleString()}</li>`)
+      .join('');
+    const addr = order.shippingAddress;
+
+    await transporter.sendMail({
+      from: `"Biomen Labs Admin" <${process.env.EMAIL_USER}>`,
+      to: adminEmail,
+      subject: `🟢 New Order Paid! ₹${order.totalAmount.toLocaleString()} — ${customerName} [${order.invoiceNumber}]`,
+      html: `
+        <div style="background:#030705;color:#F4F6F2;font-family:'Helvetica Neue',sans-serif;padding:32px;border-radius:16px;border:2px solid #0FA36B;max-width:600px;margin:auto">
+          <h1 style="color:#16C784;font-size:22px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">💰 New Order Received!</h1>
+          <p style="color:#A8B3AA;font-size:13px;margin-top:0">Paid via Razorpay — Action required: Approve & Ship</p>
+          <hr style="border-color:rgba(255,255,255,0.1);margin:20px 0"/>
+
+          <table style="width:100%;font-size:14px;border-collapse:collapse">
+            <tr><td style="color:#A8B3AA;padding:6px 0;width:40%">Invoice</td><td style="color:#fff;font-weight:bold">${order.invoiceNumber}</td></tr>
+            <tr><td style="color:#A8B3AA;padding:6px 0">Customer</td><td style="color:#fff;font-weight:bold">${customerName}</td></tr>
+            <tr><td style="color:#A8B3AA;padding:6px 0">Email</td><td style="color:#fff">${customerEmail}</td></tr>
+            <tr><td style="color:#A8B3AA;padding:6px 0">Phone</td><td style="color:#16C784;font-weight:bold;font-size:16px">${customerPhone}</td></tr>
+            <tr><td style="color:#A8B3AA;padding:6px 0">Total</td><td style="color:#16C784;font-weight:900;font-size:20px">₹${order.totalAmount.toLocaleString()}</td></tr>
+            <tr><td style="color:#A8B3AA;padding:6px 0">Payment ID</td><td style="color:#fff;font-family:monospace">${order.razorpayPaymentId || 'N/A'}</td></tr>
+          </table>
+
+          <hr style="border-color:rgba(255,255,255,0.1);margin:20px 0"/>
+          <h3 style="color:#BFA46A;text-transform:uppercase;font-size:12px;letter-spacing:2px">Order Items</h3>
+          <ul style="padding-left:20px;font-size:14px">${itemsList}</ul>
+
+          <hr style="border-color:rgba(255,255,255,0.1);margin:20px 0"/>
+          <h3 style="color:#BFA46A;text-transform:uppercase;font-size:12px;letter-spacing:2px">Ship To</h3>
+          <p style="font-size:14px;color:#A8B3AA;line-height:1.7">
+            ${addr.street}<br/>
+            ${addr.city}, ${addr.state} — ${addr.postalCode}<br/>
+            ${addr.country}
+          </p>
+
+          <div style="margin-top:24px;text-align:center">
+            <a href="${process.env.FRONTEND_URL || 'https://biomenlabs.com'}/admin" style="background:#0FA36B;color:#fff;padding:14px 32px;border-radius:50px;font-weight:900;font-size:12px;text-decoration:none;text-transform:uppercase;letter-spacing:2px">Open Admin Panel →</a>
+          </div>
+        </div>
+      `
+    });
+    console.log(`Admin order alert sent to ${adminEmail}`);
+  } catch (err) {
+    console.error('Admin alert email error:', err);
+  }
+};
+
 // Helper to send transactional order emails
 const sendOrderConfirmationEmail = async (email, order) => {
   try {
@@ -291,6 +369,9 @@ router.post('/verify-payment', async (req, res) => {
     // Send transactional order confirmation email (non-blocking background task)
     sendOrderConfirmationEmail(customerEmail, order);
 
+    // Send admin alert email so founders are notified instantly
+    sendAdminOrderAlert(order);
+
     // Trigger v2 Retention lifecycle integration
     const { applySuppressionRules, triggerFlow } = require('../utils/emailFlowsService');
     try {
@@ -348,7 +429,7 @@ router.get('/myorders', async (req, res) => {
 // ADMINISTRATIVE ADMIN DASHBOARD ENDPOINTS
 // ==========================================
 
-// @desc    Get dashboard stats (aggregated numbers)
+// @desc    Get dashboard stats (aggregated numbers + 7-day revenue chart)
 // @route   GET /api/orders/admin/stats
 // @access  Private/Admin
 router.get('/admin/stats', async (req, res) => {
@@ -371,6 +452,7 @@ router.get('/admin/stats', async (req, res) => {
     const processingCount = await Order.countDocuments({ shippingStatus: 'processing' });
     const shippedCount = await Order.countDocuments({ shippingStatus: 'shipped' });
     const deliveredCount = await Order.countDocuments({ shippingStatus: 'delivered' });
+    const cancelledCount = await Order.countDocuments({ shippingStatus: 'cancelled' });
 
     // 5. Segment Retail vs Wholesale
     const retailCount = await Order.countDocuments({ orderType: 'retail' });
@@ -380,10 +462,53 @@ router.get('/admin/stats', async (req, res) => {
     const Product = require('../models/Product');
     const lowStockProducts = await Product.find({ stock: { $lt: 10 } });
 
+    // 7. Average Order Value
+    const avgOrderValue = paidCount > 0 ? Math.round(totalRevenue / paidCount) : 0;
+
+    // 8. 7-day revenue breakdown for chart
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const recentOrders = await Order.find({
+      paymentStatus: 'paid',
+      createdAt: { $gte: sevenDaysAgo }
+    });
+
+    // Build daily revenue map for last 7 days
+    const dailyRevenue = [];
+    for (let i = 6; i >= 0; i--) {
+      const day = new Date();
+      day.setDate(day.getDate() - i);
+      day.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(day);
+      dayEnd.setHours(23, 59, 59, 999);
+
+      const dayOrders = recentOrders.filter(o => {
+        const d = new Date(o.createdAt);
+        return d >= day && d <= dayEnd;
+      });
+      const dayRevenue = dayOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+      const dayOrderCount = dayOrders.length;
+
+      dailyRevenue.push({
+        date: day.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+        revenue: dayRevenue,
+        orders: dayOrderCount
+      });
+    }
+
+    // 9. Recent 5 orders for activity feed
+    const recentActivity = await Order.find({ paymentStatus: 'paid' })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select('invoiceNumber guestDetails totalAmount createdAt shippingStatus');
+
     res.json({
       totalRevenue,
       totalOrdersCount,
       totalSubscribers,
+      avgOrderValue,
       payments: {
         paid: paidCount,
         pending: pendingPaymentCount,
@@ -392,13 +517,16 @@ router.get('/admin/stats', async (req, res) => {
       shipping: {
         processing: processingCount,
         shipped: shippedCount,
-        delivered: deliveredCount
+        delivered: deliveredCount,
+        cancelled: cancelledCount
       },
       types: {
         retail: retailCount,
         wholesale: wholesaleCount
       },
-      lowStockAlertCount: lowStockProducts.length
+      lowStockAlertCount: lowStockProducts.length,
+      dailyRevenue,
+      recentActivity
     });
   } catch (error) {
     console.error('Admin stats retrieval error:', error);
@@ -521,6 +649,101 @@ router.put('/admin/:id/shiprocket', async (req, res) => {
   } catch (error) {
     console.error('Shiprocket push error:', error);
     res.status(500).json({ error: 'Failed to register order with Shiprocket' });
+  }
+});
+
+// @desc    Set manual tracking number for an order
+// @route   PUT /api/orders/admin/:id/tracking
+// @access  Private/Admin
+router.put('/admin/:id/tracking', async (req, res) => {
+  try {
+    const { trackingNumber, shipmentId } = req.body;
+
+    if (!trackingNumber) {
+      return res.status(400).json({ error: 'Tracking number is required' });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      {
+        trackingNumber: trackingNumber.trim(),
+        shipmentId: shipmentId ? shipmentId.trim() : undefined,
+        shippingStatus: 'shipped'
+      },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.json({ success: true, message: 'Tracking number saved and order marked as shipped!', order });
+  } catch (error) {
+    console.error('Set tracking number error:', error);
+    res.status(500).json({ error: 'Failed to update tracking number' });
+  }
+});
+
+// @desc    Get all customers derived from orders (guest + users)
+// @route   GET /api/orders/admin/customers
+// @access  Private/Admin
+router.get('/admin/customers', async (req, res) => {
+  try {
+    const { search } = req.query;
+
+    // Aggregate unique guest customers from orders
+    const allOrders = await Order.find({ 'guestDetails.email': { $exists: true, $ne: '' } })
+      .sort({ createdAt: -1 })
+      .select('guestDetails totalAmount paymentStatus shippingStatus createdAt invoiceNumber items');
+
+    // Build customer map indexed by email
+    const customerMap = {};
+    for (const order of allOrders) {
+      const email = order.guestDetails?.email;
+      if (!email) continue;
+
+      if (!customerMap[email]) {
+        customerMap[email] = {
+          name: order.guestDetails?.name || 'Unknown',
+          email,
+          phone: order.guestDetails?.phone || 'N/A',
+          totalSpent: 0,
+          orderCount: 0,
+          lastOrderDate: order.createdAt,
+          orders: []
+        };
+      }
+
+      if (order.paymentStatus === 'paid') {
+        customerMap[email].totalSpent += order.totalAmount;
+      }
+      customerMap[email].orderCount += 1;
+      customerMap[email].orders.push({
+        invoiceNumber: order.invoiceNumber,
+        totalAmount: order.totalAmount,
+        paymentStatus: order.paymentStatus,
+        shippingStatus: order.shippingStatus,
+        createdAt: order.createdAt,
+        items: order.items
+      });
+    }
+
+    let customers = Object.values(customerMap).sort((a, b) => b.totalSpent - a.totalSpent);
+
+    // Apply search filter
+    if (search) {
+      const q = search.toLowerCase();
+      customers = customers.filter(c =>
+        c.name.toLowerCase().includes(q) ||
+        c.email.toLowerCase().includes(q) ||
+        c.phone.includes(q)
+      );
+    }
+
+    res.json(customers);
+  } catch (error) {
+    console.error('Admin customers fetch error:', error);
+    res.status(500).json({ error: 'Failed to retrieve customer list' });
   }
 });
 
