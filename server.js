@@ -16,7 +16,9 @@ app.use(morgan('dev'));
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/biolabs-vitality';
 
 mongoose
-  .connect(MONGODB_URI)
+  .connect(MONGODB_URI, {
+    dbName: 'biolabs-vitality'
+  })
   .then(async () => {
     console.log('💚 MongoDB Database Connected Successfully!');
     
