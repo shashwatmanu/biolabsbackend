@@ -8,13 +8,14 @@ const nodemailer = require('nodemailer');
 const dns = require('dns');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
+const delhivery = require('../utils/delhivery');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'biolabs_super_secret_key';
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_T1DPpvbyCF8PbS',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || '6zC5FvgoQPdCD8yYrRZWuox1'
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_TUmKU1RlTIyJv5',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || '3cJogr03Zgg4xZ52Dpn7rVeR'
 });
 
 
@@ -249,6 +250,12 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Order amount must be at least 100 paise (₹1).' });
     }
 
+    // Check Pin Code serviceability with Delhivery
+    const serviceability = await delhivery.checkServiceabilityAndRate(shippingAddress.postalCode);
+    if (!serviceability.serviceable) {
+      return res.status(400).json({ error: `Pin code ${shippingAddress.postalCode} is not serviceable for delivery.` });
+    }
+
     // Create order via Razorpay API
     let rzpOrder;
     try {
@@ -311,7 +318,7 @@ router.post('/verify-payment', async (req, res) => {
     }
 
     // Validate signature
-    const secret = process.env.RAZORPAY_KEY_SECRET || '6zC5FvgoQPdCD8yYrRZWuox1';
+    const secret = process.env.RAZORPAY_KEY_SECRET || '3cJogr03Zgg4xZ52Dpn7rVeR';
     const text = razorpay_order_id + '|' + razorpay_payment_id;
     const generated_signature = crypto
       .createHmac('sha256', secret)
@@ -349,6 +356,14 @@ router.post('/verify-payment', async (req, res) => {
     // Update payment status
     order.paymentStatus = 'paid';
     order.razorpayPaymentId = razorpay_payment_id;
+
+    // Push order to Delhivery for shipment
+    const shipmentResult = await delhivery.createShipment(order);
+    if (shipmentResult) {
+      order.trackingNumber = shipmentResult.waybill;
+      order.shipmentId = shipmentResult.shipmentId;
+    }
+
     await order.save();
 
     // Get email & name to send order confirmation and run retention flows
