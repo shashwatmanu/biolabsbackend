@@ -440,10 +440,64 @@ router.get('/myorders', async (req, res) => {
   }
 });
 
-// ==========================================
+// ==============================================================================
 // ADMINISTRATIVE ADMIN DASHBOARD ENDPOINTS
-// ==========================================
+// ==============================================================================
 
+// @route   POST /api/orders/admin/create
+// @desc    Manually create an order/invoice from the admin dashboard
+// @access  Private/Admin
+router.post('/admin/create', async (req, res) => {
+  try {
+    const { guestDetails, shippingAddress, items, subtotal, shippingCharges, totalAmount, paymentStatus, orderType, pushToDelhivery } = req.body;
+
+    if (!items || items.length === 0) {
+      return res.status(400).json({ error: 'Order must have at least one item.' });
+    }
+
+    // Generate Invoice Number
+    const count = await Order.countDocuments();
+    const invoiceNumber = `INV-ADM-${Date.now().toString().slice(-4)}${count + 1}`;
+
+    const order = new Order({
+      guestDetails,
+      shippingAddress,
+      items,
+      subtotal,
+      shippingCharges: shippingCharges || 0,
+      totalAmount,
+      paymentStatus: paymentStatus || 'pending',
+      paymentMethod: 'Manual',
+      shippingStatus: 'processing',
+      orderType: orderType || 'retail',
+      invoiceNumber
+    });
+
+    // If admin wants to auto-push to Delhivery for paid manual orders
+    if (pushToDelhivery && order.paymentStatus === 'paid') {
+      const shipmentResult = await delhivery.createShipment(order);
+      if (shipmentResult) {
+        order.trackingNumber = shipmentResult.waybill;
+        order.shipmentId = shipmentResult.shipmentId;
+      }
+    }
+
+    const savedOrder = await order.save();
+
+    // Optionally send email alert
+    sendAdminOrderAlert(savedOrder);
+    
+    // Auto-send confirmation to user if email is provided
+    if (guestDetails && guestDetails.email && paymentStatus === 'paid') {
+      sendOrderConfirmationEmail(guestDetails.email, savedOrder);
+    }
+
+    res.status(201).json(savedOrder);
+  } catch (error) {
+    console.error('Admin create order error:', error);
+    res.status(500).json({ error: 'Failed to create manual order.' });
+  }
+});
 // @desc    Get dashboard stats (aggregated numbers + 7-day revenue chart)
 // @route   GET /api/orders/admin/stats
 // @access  Private/Admin
