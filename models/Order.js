@@ -9,7 +9,8 @@ const OrderSchema = new mongoose.Schema({
   guestDetails: {
     name: { type: String, trim: true },
     email: { type: String, lowercase: true, trim: true },
-    phone: { type: String, trim: true }
+    phone: { type: String, trim: true },
+    gstNumber: { type: String, trim: true, uppercase: true }
   },
   items: [
     {
