@@ -357,13 +357,6 @@ router.post('/verify-payment', async (req, res) => {
     order.paymentStatus = 'paid';
     order.razorpayPaymentId = razorpay_payment_id;
 
-    // Push order to Delhivery for shipment
-    const shipmentResult = await delhivery.createShipment(order);
-    if (shipmentResult) {
-      order.trackingNumber = shipmentResult.waybill;
-      order.shipmentId = shipmentResult.shipmentId;
-    }
-
     await order.save();
 
     // Get email & name to send order confirmation and run retention flows
@@ -688,36 +681,38 @@ router.put('/admin/:id/type', async (req, res) => {
   }
 });
 
-// @desc    Mock Push order to Shiprocket (generates tracking AWB number)
-// @route   PUT /api/orders/admin/:id/shiprocket
+// @desc    Push order to Delhivery for shipping
+// @route   PUT /api/orders/admin/:id/delhivery
 // @access  Private/Admin
-router.put('/admin/:id/shiprocket', async (req, res) => {
+router.put('/admin/:id/delhivery', async (req, res) => {
   try {
-    const trackingNumber = `SR-AWB-${Math.floor(1000000000 + Math.random() * 9000000000)}`;
-    const shipmentId = `SR-SH-${Math.floor(100000 + Math.random() * 900000)}`;
-
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      {
-        shippingStatus: 'shipped',
-        trackingNumber,
-        shipmentId
-      },
-      { new: true }
-    );
-
+    const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
 
+    if (order.shippingStatus === 'shipped' || order.trackingNumber) {
+      return res.status(400).json({ error: 'Order is already manifested.' });
+    }
+
+    const shipmentResult = await delhivery.createShipment(order);
+    if (!shipmentResult) {
+      return res.status(500).json({ error: 'Failed to create shipment in Delhivery. Please check API logs and Wallet balance.' });
+    }
+
+    order.trackingNumber = shipmentResult.waybill;
+    order.shipmentId = shipmentResult.shipmentId;
+    order.shippingStatus = 'shipped';
+    await order.save();
+
     res.json({
       success: true,
-      message: 'Order successfully pushed and approved in Shiprocket!',
+      message: 'Order successfully pushed and manifested in Delhivery!',
       order
     });
   } catch (error) {
-    console.error('Shiprocket push error:', error);
-    res.status(500).json({ error: 'Failed to register order with Shiprocket' });
+    console.error('Delhivery push error:', error);
+    res.status(500).json({ error: 'Failed to register order with Delhivery' });
   }
 });
 
