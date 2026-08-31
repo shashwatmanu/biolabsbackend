@@ -241,6 +241,8 @@ router.post('/', async (req, res) => {
     let discountAmount = 0;
     if (couponCode === 'FOUNDER10') {
       discountAmount = Math.round(subtotal * 0.10);
+    } else if (couponCode === 'FOUNDER90') {
+      discountAmount = Math.round(subtotal * 0.90);
     }
     const totalAmount = subtotal + shippingCharges - discountAmount;
 
