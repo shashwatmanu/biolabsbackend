@@ -627,6 +627,34 @@ router.get('/admin/all', async (req, res) => {
   }
 });
 
+// @desc    Update payment status of an order
+// @route   PUT /api/orders/admin/:id/payment
+// @access  Private/Admin
+router.put('/admin/:id/payment', async (req, res) => {
+  try {
+    const { paymentStatus } = req.body;
+    
+    if (!['pending', 'paid', 'failed'].includes(paymentStatus)) {
+      return res.status(400).json({ error: 'Invalid payment status type' });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { paymentStatus },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.json({ success: true, message: 'Payment status updated successfully!', order });
+  } catch (error) {
+    console.error('Update payment status error:', error);
+    res.status(500).json({ error: 'Failed to update order payment status' });
+  }
+});
+
 // @desc    Update shipping status of an order
 // @route   PUT /api/orders/admin/:id/status
 // @access  Private/Admin
