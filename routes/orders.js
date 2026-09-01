@@ -270,6 +270,7 @@ router.post('/', async (req, res) => {
     }
 
     // Scaffold Order Entry in MongoDB as pending
+    const count = await Order.countDocuments();
     const orderData = {
       items: validatedItems,
       subtotal,
@@ -279,7 +280,7 @@ router.post('/', async (req, res) => {
       paymentMethod: paymentMethod || 'Razorpay',
       paymentStatus: 'pending',
       razorpayOrderId: rzpOrder.id,
-      invoiceNumber: `INV-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`
+      invoiceNumber: `INV-O-${1000 + count}`
     };
 
     if (userId) {
@@ -450,7 +451,7 @@ router.post('/admin/create', async (req, res) => {
 
     // Generate Invoice Number
     const count = await Order.countDocuments();
-    const invoiceNumber = `INV-ADM-${Date.now().toString().slice(-4)}${count + 1}`;
+    const invoiceNumber = `INV-R-${1000 + count}`;
 
     const order = new Order({
       guestDetails,
